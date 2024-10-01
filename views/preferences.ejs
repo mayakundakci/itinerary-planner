@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <form id="preferences-form" action="/itinerary" method="POST">
+    <input type="hidden" id="location" name="location" required>
+    
+    <label for="preferences">Preferences:</label>
+    <div id="preferences">
+      <label><input type="checkbox" name="preferences[]" value="restaurant"> Restaurant</label>
+      <label><input type="checkbox" name="preferences[]" value="cafe"> Cafe</label>
+      <label><input type="checkbox" name="preferences[]" value="shopping"> Shopping</label>
+      <label><input type="checkbox" name="preferences[]" value="park"> Park</label>
+      <label><input type="checkbox" name="preferences[]" value="event"> Event</label>
+    </div>
+
+    <button type="submit">Create Itinerary</button>
+  </form>
+  
+
+  <script>
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition, showError);
+      } else {
+        var x = document.getElementById("location");
+        x.innerHTML = "Geolocation is not supported by this browser.";
+      }
+    }
+
+    function showPosition(position) {
+      var latlon = position.coords.latitude + "," + position.coords.longitude;
+      document.getElementById('location').value = latlon;
+
+      $.ajax({
+        type: "GET",
+        url: "https://app.ticketmaster.com/discovery/v2/events.json?apikey=7QWr1kBaO0qojRvnhyEV4UImcgPA8oAP&latlong=" + latlon,
+        async: true,
+        dataType: "json",
+        success: function(json) {
+          console.log(json);
+          var e = document.getElementById("event");
+          if (json._embedded && json._embedded.events && json._embedded.events.length > 0) {
+            var event = json._embedded.events[0];
+            e.innerHTML = "Event found: " + event.name;
+          } else {
+            e.innerHTML = "No events found.";
+          }
+        },
+        error: function(xhr, status, err) {
+          console.log(err);
+        }
+      });
+    }
+
+    function showError(error) {
+      var x = document.getElementById("location");
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          x.innerHTML = "User denied the request for Geolocation.";
+          break;
+        case error.POSITION_UNAVAILABLE:
+          x.innerHTML = "Location information is unavailable.";
+          break;
+        case error.TIMEOUT:
+          x.innerHTML = "The request to get user location timed out.";
+          break;
+        case error.UNKNOWN_ERROR:
+          x.innerHTML = "An unknown error occurred.";
+          break;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', (event) => {
+      getLocation();
+    });
+
+  document.querySelectorAll('#preferences input[type="checkbox"]').forEach(function(checkbox) {
+    checkbox.addEventListener('change', function() {
+      const budgetSelection = document.getElementById('budget-selection');
+      
+      // Check if the "restaurant" preference is selected
+      const restaurantSelected = document.querySelector('input[name="preferences[]"][value="restaurant"]').checked;
+
+      if (restaurantSelected) {
+        budgetSelection.style.display = 'block'; // Show budget selection
+      } else {
+        budgetSelection.style.display = 'none'; // Hide budget selection
+        document.getElementById('budget').value = ''; // Reset budget value
+        
+        document.querySelectorAll('.dollar').forEach(function(el) {
+          el.classList.remove('selected'); // Deselect all dollar signs
+        });
+      }
+    })
+  });
+
+</script>
+  </style>
+</body>
+</html>
