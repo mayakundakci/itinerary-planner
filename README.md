@@ -74,3 +74,6 @@ Open your browser and visit: http://localhost:3000
 Check if the API keys are valid and have the correct permissions
 - **Empty Results**:
 Ensure your location has attractions or events within the specified search radius.
+
+## Contact
+If you have any questions or suggestions, feel free to contact us at mkundakc@andrew.cmu.edu and handandilara.bikmaz@yale.edu.
